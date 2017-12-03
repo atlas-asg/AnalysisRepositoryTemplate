@@ -1,0 +1,11 @@
+             _ _____ _      _   ___ 
+            /_\_   _| |    /_\ / __|
+           / _ \| | | |__ / _ \\__ \
+          /_/ \_\_| |____/_/ \_\___/
+
+ This image provides the compiled analysis code for
+ project {{cookiecutter.project_name}}.
+ To set up the software, please execute:
+
+       source /home/atlas/release_setup.sh
+

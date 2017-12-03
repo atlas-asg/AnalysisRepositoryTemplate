@@ -1,0 +1,140 @@
+# GitLab Continuous Integration configuration for the repository.
+#
+# It checks that:
+#  - The project's CMake configuration is functional;
+#  - The project can be built against the selected analysis release;
+#  - The project can be installed, packaged into a TGZ file, and have a Docker
+#    image be built out of.
+
+# "Global" build stages.
+stages:
+  - config
+  - build
+  - install
+  - docker
+
+# Set the behaviour of the CI build.
+variables:
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: recursive
+
+# Each job needs to start with setting up the release from the Docker image,
+# and making sure that all available CPU cores would be used for the build.
+before_script:
+  - source /home/atlas/release_setup.sh
+  - export MAKEFLAGS="-j`nproc` -l`nproc`"
+
+# Common configuration for all the "regular" jobs.
+.common_template: &common_job
+  tags:
+    - docker
+
+# Configuration for the CMake configuration jobs:
+.config_template: &config_job
+  <<: *common_job
+  stage: config
+  script:
+    - mkdir -p ci_build
+    - cd ci_build/
+    - cmake -DCTEST_USE_LAUNCHERS:BOOL=TRUE ../
+  artifacts:
+    paths:
+      - ci_build/
+    expire_in: 1 day
+
+# Test the project's configuration against AnalysisBase:
+config:AnalysisBase:
+   <<: *config_job
+   image: atlas/analysisbase:latest
+
+# Test the project's configuration against AthAnalysis:
+config:AthAnalysis:
+   <<: *config_job
+   image: atlas/athanalysis:latest
+
+# Configuration for the CMake build jobs:
+.build_template: &build_job
+  <<: *common_job
+  stage: build
+  script:
+    - cmake --build ci_build/
+  artifacts:
+    paths:
+      - ci_build/
+    expire_in: 1 day
+
+# Test the project's build against AnalysisBase:
+build:AnalysisBase:
+  <<: *build_job
+  image: atlas/analysisbase:latest
+  dependencies:
+    - config:AnalysisBase
+
+# Test the project's build against AthAnalysis:
+build:AthAnalysis:
+  <<: *build_job
+  image: atlas/athanalysis:latest
+  dependencies:
+    - config:AthAnalysis
+
+# Configuration for the CMake installation jobs:
+.install_template: &install_job
+  <<: *common_job
+  stage: install
+  script:
+    - export DESTDIR=${PWD}/ci_install
+    - cmake --build ci_build/ --target install
+  artifacts:
+    paths:
+      - ci_install/
+    expire_in: 1 day
+
+# Test the project's installation on top of AnalysisBase:
+install:AnalysisBase:
+  <<: *install_job
+  image: atlas/analysisbase:latest
+  dependencies:
+    - build:AnalysisBase
+
+# Test the project's installation on top of AthAnalysis:
+install:AthAnalysis:
+  <<: *install_job
+  image: atlas/athanalysis:latest
+  dependencies:
+    - build:AthAnalysis
+
+# Configuration for the CMake "packaging" jobs:
+.package_template: &package_job
+  <<: *common_job
+  stage: install
+  script:
+    - cd ci_build/
+    - cpack -G RPM
+  artifacts:
+    paths:
+      - ci_build/*.rpm
+    expire_in: 1 day
+
+# Package the project on top of AnalysisBase:
+package:AnalysisBase:
+  <<: *package_job
+  image: atlas/analysisbase:latest
+  dependencies:
+    - build:AnalysisBase
+
+# Package the project on top of AthAnalysis:
+package:AthAnalysis:
+  <<: *package_job
+  image: atlas/athanalysis:latest
+  dependencies:
+    - build:AthAnalysis
+
+# Setup for building a Docker image from the repository's compiled code.
+# This is only done on top of AnalysisBase.
+docker:
+  stage: docker
+  dependencies:
+    - package:AnalysisBase
+  tags:
+    - docker-image-build
+  script: echo

@@ -1,0 +1,33 @@
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+# Set the name of the package:
+atlas_subdir( AnalysisPackage )
+
+# External(s) needed by the package:
+find_package( ROOT COMPONENTS Core Hist )
+
+# Build the main library of the package:
+atlas_add_library( AnalysisPackageLib
+   AnalysisPackage/*.h Root/*.h Root/*.cxx
+   PUBLIC_HEADERS AnalysisPackage
+   LINK_LIBRARIES AnaAlgorithmLib
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase )
+
+# Build a dictionary describing the main classes of the library:
+atlas_add_dictionary( AnalysisPackageDict
+   AnalysisPackage/AnalysisPackageDict.h AnalysisPackage/selection.xml
+   LINK_LIBRARIES AnalysisPackageLib )
+
+# Build a component library for the package, when not in standalone mode:
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( AnalysisPackage
+      src/components/*.cxx
+      LINK_LIBRARIES AnalysisPackageLib )
+endif()
+
+# Install files from the package:
+atlas_install_scripts( share/*_run.py )
+atlas_install_joboptions( share/*_jobOptions.py )

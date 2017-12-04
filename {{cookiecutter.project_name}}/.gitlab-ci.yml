@@ -12,6 +12,7 @@ stages:
   - build
   - install
   - docker
+  - test
 
 # Set the behaviour of the CI build.
 variables:
@@ -138,3 +139,20 @@ docker:
   tags:
     - docker-image-build
   script: echo
+  variables:
+    TO: gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:latest
+
+# Test that we can run a job using the Docker image that was built just now.
+test:DefaultJob:
+  tags:
+    - docker
+    - cvmfs
+  stage: test
+  dependencies: []
+  image: gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:latest
+  script:
+    - AnalysisJob_run.py
+  artifacts:
+    paths:
+      - AnalysisJob/
+    expire_in: 1 week

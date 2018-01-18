@@ -84,7 +84,7 @@ build:AthAnalysis:
   stage: install
   script:
     - export DESTDIR=${PWD}/ci_install
-    - cmake --build ci_build/ --target install
+    - cmake --build ci_build/ --target install/fast
   artifacts:
     paths:
       - ci_install/

@@ -24,18 +24,17 @@ USER root
 # If this included an RPM file as well, then we're running as part of the CI
 # system, and we'll just use that RPM file. But if not, then the image build
 # has to produce the RPM file itself.
+
 RUN rpmFile=(/home/atlas/source/ci_build/*.rpm); \
     if [ ! -e "${rpmFile[0]}" ] 2>&1; then \
     source /home/atlas/release_setup.sh && \
     mkdir /home/atlas/source/ci_build && cd /home/atlas/source/ci_build && \
     cmake /home/atlas/source/ && cmake --build . && \
-    cpack -G RPM ; fi
-
-# Install the RPM file:
-RUN rpm -i /home/atlas/source/ci_build/*.rpm
-
-# Clean up:
-RUN rm -rf /home/atlas/source
+    cpack -G RPM ; fi && \
+# Install the RPM
+    rpm -i /home/atlas/source/ci_build/*.rpm && \
+# Clean up to save space
+    rm -rf /home/atlas/source
 
 # Switch back to the ATLAS account:
 USER atlas

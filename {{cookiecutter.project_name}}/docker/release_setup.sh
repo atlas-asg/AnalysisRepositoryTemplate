@@ -3,7 +3,7 @@
 #
 
 # Set up the base environment using the base image's setup script:
-source ~/analysis_release_setup.sh
+source /home/atlas/analysis_release_setup.sh
 
 # Set up the {{cookiecutter.project_name}} installation:
 source /usr/{{cookiecutter.project_name}}/*/InstallArea/*/setup.sh

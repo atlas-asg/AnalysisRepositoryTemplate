@@ -47,7 +47,7 @@ to generate a "token" for your user. You do this in the following way:
 
 <img src="images/gitlab_user_settings.png"
      alt="User settings in GitLab"
-     height="200px" />
+     height="250px" />
 
   - Here you will find a tab called "Access Tokens" on the left,
     select that;

@@ -140,7 +140,7 @@ docker:
     - docker-image-build
   script: echo
   variables:
-    TO: gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:latest
+    TO: gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:${CI_COMMIT_REF_SLUG}
 
 # Test that we can run a job using the Docker image that was built just now.
 test:DefaultJob:
@@ -149,7 +149,7 @@ test:DefaultJob:
     - cvmfs
   stage: test
   dependencies: []
-  image: gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:latest
+  image: gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:${CI_COMMIT_REF_SLUG}
   script:
     - AnalysisJob_run.py
   artifacts:

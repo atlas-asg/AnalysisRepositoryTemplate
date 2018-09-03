@@ -104,3 +104,27 @@ fail. If you provide a project name that already exists, if you do not
 provide a valid access token, etc. If this happens, the generated
 files will still be created in your local directory, but they will
 fail to get uploaded into the GitLab repository.
+
+As an example, you should expect output like the following when
+generating a repository from the template:
+
+```
+[bash][tauriel]:template > ~/Library/Python/2.7/bin/cookiecutter https://github.com/atlas-asg/AnalysisRepositoryTemplate.git
+project_name [The (camel-case) name of this analysis project]: AnalysisFromTemplate02
+contact_person [The (main) contact for this analysis]: Attila Krasznahorkay
+contact_email [E-mail address of the (main) contact]: foo.bar@somwhere.org
+user_name [The (CERN/GitLab) user name of the project's owner]: myUser
+analysis_id [The Glance ID for the analysis, if it has one]: 0
+short_descr [Short description for the project]: Test repository.
+gitlab_token [Token to access gitlab.cern.ch with]: xxxYYYzzz
+Opened connection to: https://gitlab.cern.ch
+Created project "AnalysisFromTemplate02"
+Uploaded the initial commit to it
+[bash][tauriel]:template >
+```
+
+Note that:
+  - The "user name" may be a group name as well, with even slashes in
+    it like "atlas-physics/higgs/hww";
+  - You'll have to specify a valid gitlab access token of course, I
+    redacted mine from the text...

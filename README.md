@@ -56,14 +56,14 @@ to generate a "token" for your user. You do this in the following way:
 
 <img src="images/gitlab_create_access_token.png"
      alt="Page for creating a new access token"
-     height="600px" />
+     width="95%" />
 
   - After pressing the "Create personal access token" button, you will
     be taken to the following page:
 
 <img src="images/gitlab_save_access_token.png"
      alt="Page for creating a new access token"
-     height="200px" />
+     width="95%" />
 
   - Note down the token. As the page warns you, you will not be able
     to get this token in the future in any way, so save it in a safe
@@ -85,7 +85,7 @@ template with the following command, preferably in an empty/temporary
 directory:
 
 ```
-<somewhere>/cookiecutter https://:@gitlab.cern.ch:8443/atlas-asg/AnalysisRepositoryTemplate.git
+<somewhere>/cookiecutter https://github.com/atlas-asg/AnalysisRepositoryTemplate.git
 ```
 
 It will ask you a series of questions that you need to provide answers

@@ -1,0 +1,18 @@
+#
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
+
+# Set the name of the package:
+atlas_subdir( AnalysisPackage )
+
+# External(s) needed by the package:
+find_package( ROOT COMPONENTS Core Hist )
+
+# Build a component library for the package:
+atlas_add_component( AnalysisPackage
+   AnalysisPackage/*.h Root/*.h Root/*.cxx src/components/*.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AnaAlgorithmLib xAODBase )
+
+# Install files from the package:
+atlas_install_joboptions( share/*_jobOptions.py )

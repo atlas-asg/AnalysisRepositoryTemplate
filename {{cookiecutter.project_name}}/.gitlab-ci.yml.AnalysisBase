@@ -94,7 +94,7 @@ test:DefaultJob:
   dependencies: []
   image: gitlab-registry.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name.lower()}}:${CI_COMMIT_REF_SLUG}
   script:
-    - AnalysisJob_run.py
+    - AnalysisJob_eljob.py
   artifacts:
     paths:
       - AnalysisJob/

@@ -1,7 +1,7 @@
-Example EventLoop Analysis Package
-==================================
+Example AnalysisBase Analysis Package
+=====================================
 
-This is a very simple demonstration of a package that builds EventLoop algorithm
+This is a very simple demonstration of a package that builds algorithmic
 code for an analysis. You should compose your analysis repository of one or
 multiple ones of such packages.
 
@@ -12,19 +12,19 @@ this algorithm.
 You can run the example job simply with:
 
 ```
-AnalysisJob_run.py
+AnalysisJob_eljob.py
 ```
 
 If you don't want to use the default input file for the job, you can specify
 which file to run over, using:
 
 ```
-AnalysisJob_run.py --input-files=/some/DAOD.pool.root
+AnalysisJob_eljob.py --input-files=/some/DAOD.pool.root
 ```
 
 **Note:** Executing the script is unfortunately a bit more awkward on MacOS.
 There you need to run it with:
 
 ```
-python `which AnalysisJob_run.py` --input-files=/some/DAOD.pool.root
+python `which AnalysisJob_eljob.py` --input-files=/some/DAOD.pool.root
 ```

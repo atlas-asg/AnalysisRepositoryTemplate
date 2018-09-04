@@ -22,7 +22,7 @@ atlas_project( {{cookiecutter.project_name}} 1.0.0
 # Generate an environment setup script. This call makes sure that whatever
 # "external" you use in your analysis project, is set up correctly in the
 # runtime environment.
-lcg_generate_env(  SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
+lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
 

@@ -134,3 +134,9 @@ Note that:
     it like "atlas-physics/higgs/hww";
   - You'll have to specify a valid gitlab access token of course, I
     redacted mine from the text...
+
+## Implementation Details
+
+People interested in contributing to this template repository should
+read some further details about the
+[code's design](doc/TemplateDesign.md).

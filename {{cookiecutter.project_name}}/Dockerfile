@@ -12,7 +12,7 @@
 #
 
 # Set up which image we base the analysis repository's image on.
-FROM atlas/analysisbase:latest
+FROM atlas/{{cookiecutter.base_release.lower()}}:latest
 
 # Copy everything into the image.
 COPY . /home/atlas/source/

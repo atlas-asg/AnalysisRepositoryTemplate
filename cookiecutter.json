@@ -1,8 +1,9 @@
 {
     "project_name"   : "The (camel-case) name of this analysis project",
+    "base_release"   : [ "AnalysisBase", "AthAnalysis" ],
     "contact_person" : "The (main) contact for this analysis",
     "contact_email"  : "E-mail address of the (main) contact",
-    "user_name"      : "The (CERN/GitLab) user name of the project's owner",
+    "gitlab_name"    : "The (CERN/GitLab) user/group name of the project's owner",
     "analysis_id"    : "The Glance ID for the analysis, if it has one",
     "short_descr"    : "Short description for the project",
     "gitlab_token"   : "Token to access gitlab.cern.ch with"

@@ -1,6 +1,6 @@
 {
     "project_name"   : "The (camel-case) name of this analysis project",
-    "base_release"   : [ "AnalysisBase", "AthAnalysis" ],
+    "base_release"   : [ "AnalysisBase", "AthAnalysis", "Hybrid" ],
     "contact_person" : "The (main) contact for this analysis",
     "contact_email"  : "E-mail address of the (main) contact",
     "gitlab_name"    : "The (CERN/GitLab) user/group name of the project's owner",

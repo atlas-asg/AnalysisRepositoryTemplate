@@ -110,15 +110,21 @@ generating a repository from the template:
 
 ```
 [bash][tauriel]:template > ~/Library/Python/2.7/bin/cookiecutter https://github.com/atlas-asg/AnalysisRepositoryTemplate.git
-project_name [The (camel-case) name of this analysis project]: AnalysisFromTemplate02
+project_name [The (camel-case) name of this analysis project]: StandaloneAnalysisFromTemplate
+Select base_release:
+1 - AnalysisBase
+2 - AthAnalysis
+3 - Hybrid
+Choose from 1, 2, 3 [1]: 1
 contact_person [The (main) contact for this analysis]: Attila Krasznahorkay
 contact_email [E-mail address of the (main) contact]: foo.bar@somwhere.org
-user_name [The (CERN/GitLab) user name of the project's owner]: myUser
+gitlab_name [The (CERN/GitLab) user/group name of the project's owner]: myUser
 analysis_id [The Glance ID for the analysis, if it has one]: 0
 short_descr [Short description for the project]: Test repository.
 gitlab_token [Token to access gitlab.cern.ch with]: xxxYYYzzz
+Finished the generation of the project
 Opened connection to: https://gitlab.cern.ch
-Created project "AnalysisFromTemplate02"
+Created project "StandaloneAnalysisFromTemplate"
 Uploaded the initial commit to it
 [bash][tauriel]:template >
 ```

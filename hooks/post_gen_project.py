@@ -6,16 +6,53 @@
 import os
 import sys
 import mimetypes
+import glob
 import base64
 import gitlab
 
 # Constants:
 server = 'https://gitlab.cern.ch'
-username = '{{cookiecutter.user_name}}'
+gitlabname = '{{cookiecutter.gitlab_name}}'
 useremail = '{{cookiecutter.contact_email}}'
 token = '{{cookiecutter.gitlab_token}}'
 projectname = '{{cookiecutter.project_name}}'
 description = '{{cookiecutter.short_descr}}'
+baserelease = '{{cookiecutter.base_release}}'
+
+# As a first thing, clean up the generated project. The logic here is that
+# files ending in ".AnalysisBase", ".AthAnalysis" or ".Hybrid" are renamed to
+# not have this postfix, if they are the ones to use for the project. While the
+# non-appropriate files get removed.
+#
+# If specialisations for a given file do exist, but just not for this specific
+# project, then the second loop takes care of removing the files completely.
+postfixes = ( '.AnalysisBase', '.AthAnalysis', '.Hybrid' )
+fileSpecialisationsSeen = {}
+for root, subdirs, files in os.walk( os.getcwd() ):
+    for project_file in files:
+        file_path = os.path.relpath( os.path.join( root, project_file ) )
+        file_base = os.path.splitext( file_path )[ 0 ]
+        file_ext  = os.path.splitext( file_path )[ 1 ]
+        if file_ext == '.%s' % baserelease:
+            os.rename( file_path, file_base )
+            for other_template in glob.glob( '%s.*' % file_base ):
+                os.remove( other_template )
+                pass
+            fileSpecialisationsSeen[ file_base ] = True
+            continue
+        elif file_ext in postfixes:
+            fileSpecialisationsSeen[ file_base ] = False
+            pass
+        pass
+    pass
+for filename, specFound in fileSpecialisationsSeen.iteritems():
+    if specFound:
+        continue
+    for other_template in glob.glob( '%s.*' % filename ):
+        os.remove( other_template )
+        pass
+    pass
+print( 'Finished the generation of the project' )
 
 def findGroup( mgr, name ):
     """Find a group in GitLab
@@ -78,12 +115,12 @@ print( 'Opened connection to: %s' % server )
 
 # Find the user/group to create the repository for.
 user_id = None
-user_ids = gl.users.list( username = username )
+user_ids = gl.users.list( username = gitlabname )
 if len( user_ids ) == 1:
     user_id = user_ids[ 0 ]
     pass
 
-group_id = findGroup( gl, username )
+group_id = findGroup( gl, gitlabname )
 
 id = None
 if user_id:
@@ -93,15 +130,15 @@ elif group_id:
     pass
 
 if not id:
-    print( 'Could not find user/group with name "%s"' % username )
+    print( 'Could not find user/group with name "%s"' % gitlabname )
     sys.exit( 1 )
     pass
 
 # Make sure that if a user ID was specified, we are authenticating as that user.
 if user_id:
-    if username != gl.user.username:
+    if gitlabname != gl.user.username:
         print( 'Requesting repository for "%s", but authenticated as "%s"' %
-               ( username, gl.user.username ) )
+               ( gitlabname, gl.user.username ) )
         sys.exit( 1 )
         pass
     pass
@@ -117,7 +154,7 @@ if not atlas_id:
 projects = id.projects.list( search = projectname )
 if len( projects ) != 0:
     print( 'Project/repository "%s" already exists for "%s"' %
-           ( projectname, username ) )
+           ( projectname, gitlabname ) )
     print( project[ 0 ] )
     sys.exit( 1 )
     pass

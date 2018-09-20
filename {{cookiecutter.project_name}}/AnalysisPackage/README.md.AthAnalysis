@@ -1,0 +1,16 @@
+Example AthAnalysis Analysis Package
+====================================
+
+This is a very simple demonstration of a package that builds algorithmic
+code for an analysis. You should compose your analysis repository of one or
+multiple ones of such packages.
+
+The package builds a single algorithm that produces a very simple histogram on
+its output, and provides a (Python) jobOption that executes a job locally using
+this algorithm.
+
+You can run the example job simply with:
+
+```
+athena.py AnalysisPackage/AnalysisJob_jobOptions.py
+```

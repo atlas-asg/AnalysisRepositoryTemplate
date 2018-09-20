@@ -1,0 +1,31 @@
+#
+# Project configuration for an ATLAS analysis project.
+#
+
+# Set the minimum required CMake version.
+cmake_minimum_required( VERSION 3.2 )
+
+# If you want to force the usage of a specific analysis release version,
+# you do that like:
+#
+#   find_package( {{cookiecutter.base_release}} 21.2.42 EXACT REQUIRED )
+#
+find_package( {{cookiecutter.base_release}} 21.2 REQUIRED )
+
+# Set up CTest. It's necessary for just some technical reasons.
+atlas_ctest_setup()
+
+# Set up the analysis project from the repository.
+atlas_project( {{cookiecutter.project_name}} 1.0.0
+   USE {{cookiecutter.base_release}} 21.2 )
+
+# Generate an environment setup script. This call makes sure that whatever
+# "external" you use in your analysis project, is set up correctly in the
+# runtime environment.
+lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
+install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
+   DESTINATION . )
+
+# Set up CPack. This is necessary to be able to build TGZ files correctly from
+# the compiled code. Making it possible to use the code on the grid.
+atlas_cpack_setup()

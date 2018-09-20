@@ -1,0 +1,101 @@
+#
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
+# GitLab Continuous Integration configuration for the repository.
+#
+# It checks that:
+#  - The project can be built against the selected analysis release;
+#  - The project can be installed, packaged into a TGZ file, and have a Docker
+#    image be built out of.
+
+# "Global" build stages.
+stages:
+  - build
+  - install
+  - docker
+  - test
+
+# Set the behaviour of the CI build.
+variables:
+  GIT_STRATEGY: fetch
+  GIT_SUBMODULE_STRATEGY: recursive
+
+# Each job needs to start with setting up the release from the Docker image,
+# and making sure that all available CPU cores would be used for the build.
+before_script:
+  - source /home/atlas/release_setup.sh
+  - export MAKEFLAGS="-j`nproc` -l`nproc`"
+
+# Configuration for the CMake build job:
+build:{{cookiecutter.base_release}}:
+  tags:
+    - docker
+  stage: build
+  image: atlas/{{cookiecutter.base_release.lower()}}:latest
+  script:
+    - mkdir -p ci_build
+    - cd ci_build/
+    - cmake ../
+    - cmake --build .
+  artifacts:
+    paths:
+      - ci_build/
+    expire_in: 1 day
+
+# Configuration for the CMake installation job:
+install:{{cookiecutter.base_release}}:
+  tags:
+    - docker
+  stage: install
+  image: atlas/{{cookiecutter.base_release.lower()}}:latest
+  script:
+    - export DESTDIR=${PWD}/ci_install
+    - cmake --build ci_build/ --target install/fast
+  dependencies:
+    - build:{{cookiecutter.base_release}}
+  artifacts:
+    paths:
+      - ci_install/
+    expire_in: 1 day
+
+# Configuration for the CMake "packaging" job:
+package:{{cookiecutter.base_release}}:
+  tags:
+    - docker
+  stage: install
+  image: atlas/{{cookiecutter.base_release.lower()}}:latest
+  script:
+    - cd ci_build/
+    - cpack -G RPM
+  dependencies:
+    - build:{{cookiecutter.base_release}}
+  artifacts:
+    paths:
+      - ci_build/*.rpm
+    expire_in: 1 day
+
+# Setup for building a Docker image from the repository's compiled code.
+docker:
+  stage: docker
+  dependencies:
+    - package:{{cookiecutter.base_release}}
+  tags:
+    - docker-image-build
+  script: echo
+  variables:
+    TO: gitlab-registry.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name.lower()}}:${CI_COMMIT_REF_SLUG}
+
+# Test that we can run a job using the Docker image that was built just now.
+test:DefaultJob:
+  tags:
+    - docker
+    - cvmfs
+  stage: test
+  dependencies: []
+  image: gitlab-registry.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name.lower()}}:${CI_COMMIT_REF_SLUG}
+  script:
+    - athena.py AnalysisPackage/AnalysisJob_jobOptions.py
+  artifacts:
+    paths:
+      - AnalysisJob/
+    expire_in: 1 week

@@ -1,6 +1,6 @@
 # {{cookiecutter.project_name}}
 
-[![pipeline status](https://gitlab.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name}}/badges/master/pipeline.svg)](https://gitlab.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name}}/commits/master)
+[![pipeline status](https://gitlab.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name}}/badges/master/pipeline.svg)](https://gitlab.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name}}/commits/master)
 
 {{cookiecutter.short_descr}}
 
@@ -26,7 +26,7 @@ To build the release project, just follow the instructions from the
 performing an out-of-source build.
 
 ```
-git clone http://:@gitlab.cern.ch:8443/{{cookiecutter.user_name}}/{{cookiecutter.project_name}}.git
+git clone http://:@gitlab.cern.ch:8443/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name}}.git
 asetup AnalysisBase,latest
 mkdir build
 cd build/
@@ -59,9 +59,9 @@ can also use it to build an image locally, executing something like
 the following in the repository's main directory.
 
 ```
-docker build -t gitlab-registry.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name.lower()}}:latest --compress --squash .
+docker build -t gitlab-registry.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name.lower()}}:latest --compress --squash .
 ```
 
 See the GitLab
-[container registry](https://gitlab.cern.ch/{{cookiecutter.user_name}}/{{cookiecutter.project_name}}/container_registry)
+[container registry](https://gitlab.cern.ch/{{cookiecutter.gitlab_name}}/{{cookiecutter.project_name}}/container_registry)
 documentation for further details.

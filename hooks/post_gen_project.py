@@ -4,20 +4,17 @@
 
 # Import(s).
 import os
-import sys
-import mimetypes
 import glob
-import base64
-import gitlab
 
 # Constants:
-server = 'https://gitlab.cern.ch'
-gitlabname = '{{cookiecutter.gitlab_name}}'
-useremail = '{{cookiecutter.contact_email}}'
-token = '{{cookiecutter.gitlab_token}}'
-projectname = '{{cookiecutter.project_name}}'
-description = '{{cookiecutter.short_descr}}'
-baserelease = '{{cookiecutter.base_release}}'
+server = "https://gitlab.cern.ch"
+gitlabname = "{{cookiecutter.gitlab_name}}"
+useremail = "{{cookiecutter.contact_email}}"
+token = "{{cookiecutter.gitlab_token}}"
+projectname = "{{cookiecutter.project_name}}"
+description = "{{cookiecutter.short_descr}}"
+baserelease = "{{cookiecutter.base_release}}"
+create_repo = "{{cookiecutter.create_repo}}" == 'y'
 
 # As a first thing, clean up the generated project. The logic here is that
 # files ending in ".AnalysisBase", ".AthAnalysis" or ".Hybrid" are renamed to
@@ -45,7 +42,7 @@ for root, subdirs, files in os.walk( os.getcwd() ):
             pass
         pass
     pass
-for filename, specFound in fileSpecialisationsSeen.iteritems():
+for filename, specFound in fileSpecialisationsSeen.items():
     if specFound:
         continue
     for other_template in glob.glob( '%s.*' % filename ):
@@ -107,95 +104,99 @@ def findGroup( mgr, name ):
     # Return what we found:
     return current_group
 
-# Access GitLab.
-gl = gitlab.Gitlab( server, private_token = token,
-                    api_version = 4 )
-gl.auth()
-print( 'Opened connection to: %s' % server )
+def create_repository(server, token, gitlabname, api_version=4):
+    import gitlab
+    import base64
+    import mimetypes
 
-# Find the user/group to create the repository for.
-user_id = None
-user_ids = gl.users.list( username = gitlabname )
-if len( user_ids ) == 1:
-    user_id = user_ids[ 0 ]
-    pass
+    gl = gitlab.Gitlab( server, private_token = token,
+                        api_version = 4 )
+    gl.auth()
+    print( 'Opened connection to: %s' % server )
 
-group_id = findGroup( gl, gitlabname )
-
-id = None
-if user_id:
-    id = user_id
-elif group_id:
-    id = group_id
-    pass
-
-if not id:
-    print( 'Could not find user/group with name "%s"' % gitlabname )
-    sys.exit( 1 )
-    pass
-
-# Make sure that if a user ID was specified, we are authenticating as that user.
-if user_id:
-    if gitlabname != gl.user.username:
-        print( 'Requesting repository for "%s", but authenticated as "%s"' %
-               ( gitlabname, gl.user.username ) )
-        sys.exit( 1 )
+    # Find the user/group to create the repository for.
+    user_id = None
+    user_ids = gl.users.list( username = gitlabname )
+    if len( user_ids ) == 1:
+        user_id = user_ids[ 0 ]
         pass
-    pass
 
-# Find the atlas-physics group.
-atlas_id = findGroup( gl, 'atlas-physics' )
-if not atlas_id:
-    print( 'Could not find the "atlas-physics" group!' )
-    sys.exit( 1 )
-    pass
+    group_id = findGroup( gl, gitlabname )
 
-# Make sure that the repository doesn't exist yet.
-projects = id.projects.list( search = projectname )
-if len( projects ) != 0:
-    print( 'Project/repository "%s" already exists for "%s"' %
-           ( projectname, gitlabname ) )
-    print( project[ 0 ] )
-    sys.exit( 1 )
-    pass
+    id = None
+    if user_id:
+        id = user_id
+    elif group_id:
+        id = group_id
+        pass
 
-# Create the (private) repository.
-args = { 'name' : projectname,
-         'path' : projectname,
-         'description' : description,
-         'visibility' : 'private',
-         'wiki_enabled' : False }
-if group_id:
-    args[ 'namespace_id' ] = group_id.id
-    pass
-project = gl.projects.create( args )
-print( 'Created project "%s"' % projectname )
+    if not id:
+        raise ValueError('Could not find user/group with name "%s"' % gitlabname)
+        pass
 
-# Set its properties.
-project.share( atlas_id.id, gitlab.REPORTER_ACCESS )
-
-# Commit/upload all files to it.
-commit_data = {
-    'branch'        : 'master',
-    'commit_message': 'Initial commit',
-    'author_email'  : useremail,
-    'actions'       : []
-    }
-for root, subdirs, files in os.walk( os.getcwd() ):
-    for upload_file in files:
-        file_path = os.path.relpath( os.path.join( root, upload_file ) )
-        file_type = mimetypes.guess_type( file_path )
-        content = open( file_path, 'r' ).read()
-        action = { 'action'    : 'create',
-                   'file_path' : file_path }
-        if file_type[ 0 ] == 'image/png':
-            action[ 'content' ] = base64.b64encode( content )
-            action[ 'encoding' ] = 'base64'
-        else:
-            action[ 'content' ] = content
+    # Make sure that if a user ID was specified, we are authenticating as that user.
+    if user_id:
+        if gitlabname != gl.user.username:
+            raise ValueError( 'Requesting repository for "%s", but authenticated as "%s"' %
+                   ( gitlabname, gl.user.username ) )
             pass
-        commit_data[ 'actions' ].append( action )
         pass
-    pass
-commit = project.commits.create( commit_data )
-print( 'Uploaded the initial commit to it' )
+
+    # Find the atlas-physics group.
+    atlas_id = findGroup( gl, 'atlas-physics' )
+    if not atlas_id:
+        raise( 'Could not find the "atlas-physics" group!' )
+        pass
+
+    # Make sure that the repository doesn't exist yet.
+    projects = id.projects.list( search = projectname )
+    if len( projects ) != 0:
+        raise ValueError( 'Project/repository "%s" already exists for "%s"' %
+               ( projectname, gitlabname ) )
+        pass
+
+    # Create the (private) repository.
+    args = { 'name' : projectname,
+             'path' : projectname,
+             'description' : description,
+             'visibility' : 'private',
+             'wiki_enabled' : False }
+    if group_id:
+        args[ 'namespace_id' ] = group_id.id
+        pass
+    project = gl.projects.create( args )
+    print( 'Created project "%s"' % projectname )
+
+    # Set its properties.
+    project.share( atlas_id.id, gitlab.REPORTER_ACCESS )
+
+    # Commit/upload all files to it.
+    commit_data = {
+        'branch'        : 'master',
+        'commit_message': 'Initial commit',
+        'author_email'  : useremail,
+        'actions'       : []
+        }
+    for root, subdirs, files in os.walk( os.getcwd() ):
+        for upload_file in files:
+            file_path = os.path.relpath( os.path.join( root, upload_file ) )
+            file_type = mimetypes.guess_type( file_path )
+            print(file_path, file_type, root, upload_file)
+            content = open( file_path, 'rb' ).read()
+            action = { 'action'    : 'create',
+                       'file_path' : file_path }
+            if file_type[ 0 ] == 'image/png':
+                action[ 'content' ] = base64.b64encode( content )
+                action[ 'encoding' ] = 'base64'
+            else:
+                action[ 'content' ] = content
+                pass
+            commit_data[ 'actions' ].append( action )
+            pass
+        pass
+    commit = project.commits.create( commit_data )
+    print( 'Uploaded the initial commit to it' )
+
+if create_repo:
+    create_repository(server, token, gitlabname)
+    print( 'Git repository created and committed' )

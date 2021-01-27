@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 # Import(s).
@@ -144,9 +144,6 @@ def create_repository(server, token, gitlabname, api_version=4):
 
     # Find the atlas-physics group.
     atlas_id = findGroup( gl, 'atlas-physics' )
-    if not atlas_id:
-        raise( 'Could not find the "atlas-physics" group!' )
-        pass
 
     # Make sure that the repository doesn't exist yet.
     projects = id.projects.list( search = projectname )
@@ -168,7 +165,9 @@ def create_repository(server, token, gitlabname, api_version=4):
     print( 'Created project "%s"' % projectname )
 
     # Set its properties.
-    project.share( atlas_id.id, gitlab.REPORTER_ACCESS )
+    if atlas_id != None:
+        project.share( atlas_id.id, gitlab.REPORTER_ACCESS )
+        pass
 
     # Commit/upload all files to it.
     commit_data = {
